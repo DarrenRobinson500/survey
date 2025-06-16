@@ -1,0 +1,29 @@
+<nav class="navbar navbar-light navbar-expand-xl" style="background-color: {{ general.colour }}; color: {{general.colour_text}};">
+    <div class="container-fluid">
+        {% if user.is_authenticated %}
+            <a class="navbar-brand" href="{% url 'home' %}" style="color: {{general.colour_text}};"><b>Home</b></a>
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              {% if user.is_staff %}
+              <li class="nav-item"><a class="nav-link active" href="{% url 'list_view' 'company' %}" style="color: {{general.colour_text}};">Companies</a></li>
+              <li class="nav-item"><a class="nav-link active" href="{% url 'list_view' 'period' %}" style="color: {{general.colour_text}};">Periods</a></li>
+              <li class="nav-item"><a class="nav-link active" href="{% url 'list_view' 'person' %}" style="color: {{general.colour_text}};">People</a></li>
+              <li class="nav-item"><a class="nav-link active" href="{% url 'list_view' 'answer_type' %}" style="color: {{general.colour_text}};">Answer Types</a></li>
+              <li class="nav-item"><a class="nav-link active" href="{% url 'list_view' 'question' %}" style="color: {{general.colour_text}};">Questions</a></li>
+              <li class="nav-item"><a class="nav-link active" href="{% url 'download' %}" style="color: {{company.colour_text}};">Download</a></li>
+              <li class="nav-item"><a class="nav-link active" href="{% url 'list_view' 'to_do' %}" style="color: {{company.colour_text}};">Development</a></li>
+              {% endif %}
+              <li class="nav-item"><a class="nav-link active" href="{% url 'answers' %}" style="color: {{general.colour_text}};">Answers</a></li>
+            </ul>
+            <ul class="nav justify-content-end">
+              <li class="nav-item"><a class="nav-link active" href="#" style="color: {{general.colour_text}};">Hi, {{ user }}!</a></li>
+              <li class="nav-item"><a class="nav-link active" href="{% url 'switch' %}" style="color: {{general.colour_text}};">Switch</a></li>
+              <li class="nav-item"><a class="nav-link active" href="{% url 'logout' %}">Logout</a></li>
+            </ul>
+        {% else %}
+            <a class="navbar-brand" href="{% url 'home' %}" style="color: {{general.colour_text}};"><b>Home</b></a>
+            <ul class="nav justify-content-end">
+              <li class="nav-item"><a class="nav-link active" href="{% url 'signup' %}">Signup</a></li>
+            </ul>
+        {% endif %}
+    </div>
+</nav>

@@ -1,0 +1,27 @@
+{% extends 'base.html'%}
+{% block content %}
+
+<h1>Periods</h1>
+<table class='table table-hover table-bordered'>
+    <tr style="color: {{general.colour_text}}; background-color: {{ general.colour }};"><th>Name</th><th>Start</th><th>End</th><th>Frequency</th><th>Unanswered</th><th>Action</th></tr>
+    {% for item in items %}
+        <tr>
+            <td>{{ item.name }}</td>
+            <td>{{ item.start_date }}</td>
+            <td>{{ item.end_date }}</td>
+            <td>{{ item.frequency }}</td>
+            <td>{{ item.unanswered }}</td>
+            <td>
+                <a class="btn btn-sm" href="{% url 'add_previous' item.id %}" style="color: {{general.colour_text}}; background-color: {{ general.colour }};">Add Previous</a>
+                <a class="btn btn-sm" href="{% url 'add_next' item.id %}" style="color: {{general.colour_text}}; background-color: {{ general.colour }};">Add Next</a>
+                <a class="btn btn-sm" href="{% url 'edit' model_str item.id %}" style="color: {{general.colour_text}}; background-color: {{ general.colour }};">Edit</a>
+                <a class="btn btn-sm" href="{% url 'delete' model_str item.id %}" style="color: {{general.colour_text}}; background-color: {{ general.colour }};">Delete</a>
+            </td>
+        </tr>
+    {% endfor %}
+</table>
+<a class="btn btn-yak" href="{% url 'new' model_str %}" style="color: {{general.colour_text}}; background-color: {{ general.colour }};">New {{ model_str | capfirst }}</a><br><br>
+
+
+
+{% endblock %}

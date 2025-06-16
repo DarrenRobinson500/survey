@@ -1,0 +1,20 @@
+{% extends 'base.html'%}
+{% block content %}
+<h1>Home</h1>
+<table class='table table-hover table-bordered'>
+    <tr style="color: {{general.colour_text}}; background-color: {{ general.colour }};"><th>Name</th><th>Size</th><th>Action</th></tr>
+    {% for model_str, size in items %}
+    <tr>
+        <td>{{ model_str | capfirst }}</td>
+        <td>{{ size }}</td>
+        <td>
+            <a class="btn btn-sm" href="{% url 'list_view' model_str %}" style="color: {{general.colour_text}}; background-color: {{ general.colour }};">Go to {{ model_str | capfirst }}</a>
+            <a class="btn btn-sm" href="{% url 'delete_all' model_str %}" style="color: {{general.colour_text}}; background-color: {{ general.colour }};">Delete data</a>
+            {% if model_str != "answer" %}
+                <a class="btn btn-sm" href="{% url 'make_data' model_str %}" style="color: {{general.colour_text}}; background-color: {{ general.colour }};">Make data</a>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+<br><br>
+{% endblock %}

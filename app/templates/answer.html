@@ -1,0 +1,39 @@
+{% extends 'base.html'%}
+{% block content %}
+<h1>Add Comments</h1>
+
+<table class='table table-hover table-bordered'>
+    <tr style="background-color: {{ general.colour }};"><th>Item</th><th>Value</th></tr>
+        <tr>
+            <td>Question</td>
+            <td>{{ item.question }}</td>
+        </tr>
+        <tr>
+            <td>Company</td>
+            <td>{{ item.company }}</td>
+        </tr>
+        <tr>
+            <td>Period</td>
+            <td>{{ item.period }}</td>
+        </tr>
+        <tr>
+            <td>Owner</td>
+            <td>{{ item.person }}</td>
+        </tr>
+        <tr>
+            <td>Answer</td>
+            <td>{{ item.answer }}</td>
+        </tr>
+</table>
+
+Please provide additional details:
+<form class="form-inline my-2 my-lg-0" method="POST">
+    {% csrf_token %}
+    <textarea name="notes" cols="80" rows="4" id="id_notes" style="width: 100%;"></textarea> <br><br>
+    <button type="submit" class="btn" style="color: #000000; background-color: #A6C9EC;">Update</button>
+</form>
+
+
+{% endblock %}
+
+

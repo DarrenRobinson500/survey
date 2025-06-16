@@ -1,0 +1,79 @@
+{% extends 'base.html'%}
+{% block content %}
+
+<h1>Filter</h1>
+<table class='table table-hover table-bordered'>
+    <tr style="color: {{general.colour_text}}; background-color: {{ general.colour }};"><th>Companies</th><th>People</th><th>Periods</th><th>Status</th></tr>
+    <tr>
+        <td>
+            {% for item in companies %}
+                {% if item == selected_company %}
+                    <a class="btn btn-sm my-2" href="{% url 'select' 'company' item.id %}" style="color: white; background-color: orange;">{{ item }}</a>
+                {% else %}
+                    <a class="btn btn-sm my-2" href="{% url 'select' 'company' item.id %}" style="color: {{general.colour_text}}; background-color: {{ general.colour }};">{{ item }}</a>
+                {% endif %}
+            {% endfor %}
+        </td>
+        <td>
+            {% for item in people %}
+                {% if item == selected_person %}
+                    <a class="btn btn-sm my-2" href="{% url 'select' 'person' item.id %}" style="color: white; background-color: orange;">{{ item }}</a>
+                {% else %}
+                    <a class="btn btn-sm my-2" href="{% url 'select' 'person' item.id %}" style="color: {{general.colour_text}}; background-color: {{ general.colour }};">{{ item }}</a>
+                {% endif %}
+            {% endfor %}
+        </td>
+        <td>
+            {% for item in periods %}
+                {% if item == selected_period %}
+                    <a class="btn btn-sm my-2" href="{% url 'select' 'period' item.id %}" style="color: white; background-color: orange;">{{ item }}</a>
+                {% else %}
+                    <a class="btn btn-sm my-2" href="{% url 'select' 'period' item.id %}" style="color: {{general.colour_text}}; background-color: {{ general.colour }};">{{ item }}</a>
+                {% endif %}
+            {% endfor %}
+        </td>
+        <td>
+            {% for item in statuses %}
+                {% if item == selected_status %}
+                    <a class="btn btn-sm my-2" href="{% url 'select' 'status' item %}" style="color: white; background-color: orange;">{{ item }}</a>
+                {% else %}
+                    <a class="btn btn-sm my-2" href="{% url 'select' 'status' item %}" style="color: {{general.colour_text}}; background-color: {{ general.colour }};">{{ item }}</a>
+                {% endif %}
+            {% endfor %}
+        </td>
+    </tr>
+</table>
+<h1>Answers</h1>
+
+<table class='table table-hover table-bordered'>
+    <tr style="color: {{general.colour_text}}; background-color: {{ general.colour }};"><th>Question</th><th>Company</th><th>Period</th><th>Owner</th><th>Answered by</th><th>Answer</th><th>Notes</th><th>Action</th></tr>
+    {% for item in items %}
+        <tr>
+            <td>{{ item.question }}</td>
+            <td>{{ item.company }}</td>
+            <td>{{ item.period }}</td>
+            <td>{{ item.person }}</td>
+            <td>{% if item.answered_by %}{{ item.answered_by }}{% endif %}</td>
+            <td>
+                {% if item.answer %}
+                    {{ item.answer }}
+                {% else %}
+                    {% for x in item.question.answers %}
+                        <a class="btn btn-sm my-2" href="{% url 'add_answer' item.id x %}" style="color: {{general.colour_text}}; background-color: {{ general.colour }};">{{ x }}</a>
+                    {% endfor %}
+                {% endif %}
+            </td>
+            <td>
+                {% if item.notes %}
+                    {{ item.notes }}
+                {% endif %}
+            </td>
+            <td>
+                <a class="btn btn-sm my-2" href="{% url 'add_answer' item.id 'clear' %}" style="color: {{general.colour_text}}; background-color: {{ general.colour }};">Clear</a>
+                <a class="btn btn-sm my-2" href="{% url 'delete' model_str item.id %}" style="color: {{general.colour_text}}; background-color: {{ general.colour }};">Delete</a>
+            </td>
+        </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}
