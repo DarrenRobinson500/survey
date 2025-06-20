@@ -44,6 +44,7 @@
     </tr>
 </table>
 <h1>Answers</h1>
+<h3>{{ description }}</h3>
 
 <table class='table table-hover table-bordered'>
     <tr style="color: {{general.colour_text}}; background-color: {{ general.colour }};"><th>Question</th><th>Company</th><th>Period</th><th>Owner</th><th>Answered by</th><th>Answer</th><th>Notes</th><th>Action</th></tr>
@@ -51,14 +52,14 @@
         <tr>
             <td>{{ item.question }}</td>
             <td>{{ item.company }}</td>
-            <td>{{ item.period }}</td>
+            <td>{{ item.period }} ({{ item.date }})</td>
             <td>{{ item.person }}</td>
             <td>{% if item.answered_by %}{{ item.answered_by }}{% endif %}</td>
             <td>
                 {% if item.answer %}
                     {{ item.answer }}
                 {% else %}
-                    {% for x in item.question.answers %}
+                    {% for x in item.question.answer_choices %}
                         <a class="btn btn-sm my-2" href="{% url 'add_answer' item.id x %}" style="color: {{general.colour_text}}; background-color: {{ general.colour }};">{{ x }}</a>
                     {% endfor %}
                 {% endif %}

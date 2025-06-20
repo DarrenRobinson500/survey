@@ -2,12 +2,14 @@
 {% block content %}
 
 <h1>Companies</h1>
+<h3>{{ description }}</h3>
 <table class='table table-hover table-bordered'>
     <tr style="color: {{general.colour_text}}; background-color: {{ general.colour }};"><th>Name</th><th>Action</th></tr>
     {% for item in items %}
         <tr>
             <td>{{ item.name }}</td>
             <td>
+                <a class="btn btn-sm" href="{% url 'item' model_str item.id %}" style="color: {{general.colour_text}}; background-color: {{ general.colour }};">View</a>
                 <a class="btn btn-sm" href="{% url 'edit' model_str item.id %}" style="color: {{general.colour_text}}; background-color: {{ general.colour }};">Edit</a>
                 <a class="btn btn-sm" href="{% url 'delete' model_str item.id %}" style="color: {{general.colour_text}}; background-color: {{ general.colour }};">Delete</a>
             </td>

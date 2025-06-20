@@ -1,0 +1,16 @@
+asgiref==3.8.1
+Django==4.2.23
+django-filter==25.1
+django-storages==1.14.6
+numpy==2.0.2
+pandas==2.3.0
+psycopg2-binary==2.9.10
+python-dateutil==2.9.0.post0
+python-decouple==3.8
+pytz==2025.2
+six==1.17.0
+sqlparse==0.5.3
+typing_extensions==4.14.0
+tzdata==2025.2
+whitenoise==6.9.0
+XlsxWriter==3.2.3

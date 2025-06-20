@@ -8,7 +8,7 @@
         <td>{{ model_str | capfirst }}</td>
         <td>{{ size }}</td>
         <td>
-            <a class="btn btn-sm" href="{% url 'list_view' model_str %}" style="color: {{general.colour_text}}; background-color: {{ general.colour }};">Go to {{ model_str | capfirst }}</a>
+            <a class="btn btn-sm" href="{% url 'list_view' model_str %}" style="color: {{general.colour_text}}; background-color: {{ general.colour }};">Go to</a>
             <a class="btn btn-sm" href="{% url 'delete_all' model_str %}" style="color: {{general.colour_text}}; background-color: {{ general.colour }};">Delete data</a>
             {% if model_str != "answer" %}
                 <a class="btn btn-sm" href="{% url 'make_data' model_str %}" style="color: {{general.colour_text}}; background-color: {{ general.colour }};">Make data</a>
@@ -16,5 +16,9 @@
         </td>
     </tr>
     {% endfor %}
+</table>
+
+<a class="btn btn-sm" href="{% url 'edit_descriptions' %}" style="color: {{general.colour_text}}; background-color: {{ general.colour }};">Edit descriptions</a>
+
 <br><br>
 {% endblock %}

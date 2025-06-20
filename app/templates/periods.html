@@ -2,6 +2,7 @@
 {% block content %}
 
 <h1>Periods</h1>
+<h3>{{ description }}</h3>
 <table class='table table-hover table-bordered'>
     <tr style="color: {{general.colour_text}}; background-color: {{ general.colour }};"><th>Name</th><th>Start</th><th>End</th><th>Frequency</th><th>Unanswered</th><th>Action</th></tr>
     {% for item in items %}

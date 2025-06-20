@@ -3,30 +3,24 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
 from .forms import *
-from .utilities import *
 import pandas as pd
 from pandas import ExcelWriter
 from django.http import HttpResponse
-from datetime import timedelta
+from datetime import timedelta, date
+import calendar
 
 
-general = General.objects.filter(name="Insignia").first()
-if not general:
-    General(name="Insignia").save()
 
 def home(request):
-    print("Home", request.user.username)
     if not request.user.is_authenticated:
         return redirect("login")
 
     items = []
-    exclude = [General, To_do]
+    exclude = [General_2, To_do]
     for model in all_models:
         if model not in exclude:
             size = len(model.objects.all())
             items.append((model.model_name, size))
-
-    print(items)
 
     context = {'general': general, "items": items}
     return render(request, "home.html", context)
@@ -41,33 +35,25 @@ def signup(request):
         firstname = request.POST['firstname']
         surname = request.POST['lastname']
         if form.is_valid():
-            print("Form is valid")
             user = form.save()
             user.firstname = firstname
             user.surname = surname
             user.save()
             person = Person.objects.filter(firstname=firstname, surname=surname).first()
             if person and person.user is None:
-                print("Found Staff Record")
                 person.user = user
             else:
-                print("Created Staff Record")
                 person = Person(firstname=firstname, surname=surname, user=user)
             person.save()
 
             login(request, user)
             return redirect("answers")
-        else:
-            print("Form isn't valid")
-            print(form.errors)
     else:
         form = UserCreationForm()
-    print("Signup:", general)
     context = {'form': form, 'general': general}
     return render(request, 'registration/signup.html', context)
 
 def switch(request):
-    print("Switch user:")
     if request.user.username == "John":
         user = authenticate(request, username="Darren", password="admin")
     elif request.user.username == "Darren":
@@ -104,25 +90,42 @@ def logout_user(request):
     logout(request)
     return redirect("login")
 
+
+# ------------------------
+# ---- Descriptions ------
+# ------------------------
+
+def edit_descriptions(request):
+    print("Edit descriptions")
+    if not request.user.is_authenticated: return redirect("login")
+    form = DescriptionForm
+    item = general
+    if request.method == 'POST':
+        print("Edit descriptions - post")
+        form = form(request.POST, instance=item)
+        if form.is_valid():
+            form.save()
+            return redirect('home')
+    print("Edit description Form")
+    print(form)
+    form = form(instance=item)
+    context = {'general': general, 'form':form, 'item':item, }
+    return render(request, 'edit.html', context)
+
 # ---------------------
 # ---- Periods ------
 # ---------------------
 def make_period():
     name, start_date, end_date = get_quarter_dates(date.today())
-    print("Make period:", name, start_date, end_date)
     existing = Period.objects.filter(name=name)
     if not existing:
-        print("Making quarter:", name)
         Period(name=name, start_date=start_date, end_date=end_date).save()
     name, start_date, end_date = get_month_dates(date.today())
-    print("Make period:", name, start_date, end_date)
     existing = Period.objects.filter(name=name)
     if not existing:
-        print("Making month:", name)
         Period(name=name, start_date=start_date, end_date=end_date, frequency="Monthly").save()
 
 def add_previous(request, id):
-    period = Period.objects.get(id=id)
     add_previous_function(id)
     return redirect("list_view", "period")
 
@@ -135,7 +138,6 @@ def add_previous_function(id):
         name, start_date, end_date = get_month_dates(date_to_use)
     existing = Period.objects.filter(name=name)
     if not existing:
-        print("Making quarter:", name)
         Period(name=name, start_date=start_date, end_date=end_date, frequency=period.frequency).save()
 
 def add_next(request, id):
@@ -147,31 +149,26 @@ def add_next(request, id):
         name, start_date, end_date = get_month_dates(date_to_use)
     existing = Period.objects.filter(name=name)
     if not existing:
-        print("Making quarter:", name)
         Period(name=name, start_date=start_date, end_date=end_date).save()
     return redirect("list_view", "period")
-
 
 # ---------------------
 # ---- Answers ------
 # ---------------------
 
 def make_all_answers():
-    print("Make all answers")
     questions = Question.objects.all()
     periods = Period.objects.all()
     for question in questions:
         for period in periods:
             if question.frequency == period.frequency:
                 existing = Answer.objects.filter(question=question, period=period).first()
-                print("Make all answers:", question, period, existing)
                 if not existing:
-                    print("Making answer:", question.person)
                     new = Answer(question=question, period=period)
                     new.person = question.person
                     new.company = question.company
                     new.save()
-                    print("Created:", new, new.person)
+                    new.set_period_date()
 
 def select(request, model_str, id):
     user = get_user(request)
@@ -205,11 +202,13 @@ def select(request, model_str, id):
     return redirect('answers')
 
 def answers(request):
+    model_str = "answer"
     make_all_answers()
     items = Answer.objects.all()
     people = Person.objects.all()
     companies = Company.objects.all()
     periods = Period.objects.all().order_by('frequency', 'start_date')
+    description = get_description(model_str)
 
     user = get_user(request)
     if user.user_type == "Respondent":
@@ -224,7 +223,7 @@ def answers(request):
 
     context = {'general': general, 'companies': companies, 'people': people, 'periods': periods, 'statuses': statuses, 'items': items,
                'selected_company': user.selected_company, 'selected_person': user.selected_person, 'selected_period': user.selected_period, 'selected_status': user.selected_status,
-               'model_str': 'answer'}
+               'model_str': model_str, 'description':description}
     return render(request, 'answers.html', context)
 
 def add_answer(request, answer_id, answer_str):
@@ -265,7 +264,6 @@ def get_company(row):
     except: return ""
 
 def get_person(row):
-    print("Get person:", row['person_id'])
     try:
         person = Person.objects.get(id=row['person_id'])
         return str(person)
@@ -289,15 +287,12 @@ def download(request):
     df = pd.DataFrame(list(data.values()))
 
     company = df.apply(get_company, axis=1)
-    print(type(company))
     person = df.apply(get_person, axis=1)
     question = df.apply(get_question, axis=1)
     period = df.apply(get_period, axis=1)
     # df.columns = ['Company', 'Ping', 'Email', 'Area']
     df = pd.concat([company, person, question, period, df['answer']], axis=1)
     df.rename(columns={0: 'Company', 1: 'Person', 2: 'Question', 3: 'Period', 4: 'Answer'}, inplace=True)
-    # print("df.columns")
-    print(df.columns)
 
     today = date.today().strftime("%d %B %Y")
     df.to_excel(writer, sheet_name=f'{today}', index=False)
@@ -411,13 +406,14 @@ def toggle_value(request, id, parameter):
 def list_view(request, model_str):
     if not request.user.is_authenticated: return redirect("login")
     model, form = get_model(model_str)
+    description = get_description(model_str)
     if model == Answer:
         return redirect('answers')
     if model == Period: make_period()
     items = model.objects.all()
     if model_str == "to_do": items = items.order_by('priority', 'name')
     if model_str == "period": items = items.order_by('frequency', 'start_date')
-    context = {'general': general, 'items': items, 'model_str': model_str, }
+    context = {'general': general, 'description': description, 'items': items, 'model_str': model_str, }
     return render(request, model_str + "s.html", context)
 
 def item(request, model_str, id):
@@ -434,8 +430,6 @@ def new(request, model_str):
         form = form(request.POST)
         if form.is_valid():
             form.save()
-        else:
-            print(form.errors)
         return redirect('list_view', model_str)
     form = form()
     context = {'general': general, 'form':form, 'model_str': model_str, 'mode': 'New'}
@@ -444,7 +438,6 @@ def new(request, model_str):
 def edit(request, model_str, id):
     if not request.user.is_authenticated: return redirect("login")
     model, form = get_model(model_str)
-    print("Edit", model_str, model, form)
     item = model.objects.get(id=id)
     if request.method == 'POST':
         form = form(request.POST, instance=item)
@@ -502,3 +495,26 @@ def make_data(request, model_str):
         Question(question="Question C", frequency="Monthly", person=john, company=nulis, answer_type=yn).save()
         Question(question="Question D", frequency="Quarterly", person=max, company=opc, answer_type=yn).save()
     return redirect('home')
+
+# ----------------------
+# ---- Utilities  ------
+# ----------------------
+
+def get_month_dates(input_date):
+    start_date = date(input_date.year, input_date.month, 1)
+    end_date = date(input_date.year, input_date.month, calendar.monthrange(input_date.year, input_date.month)[1])
+    month_label = f"{input_date.strftime('%B %Y')}"
+    return month_label, start_date, end_date
+
+def get_quarter_dates(input_date):
+    quarters = [
+        (date(input_date.year, 1, 1), date(input_date.year, 3, 31)),
+        (date(input_date.year, 4, 1), date(input_date.year, 6, 30)),
+        (date(input_date.year, 7, 1), date(input_date.year, 9, 30)),
+        (date(input_date.year, 10, 1), date(input_date.year, 12, 31)),
+    ]
+    for start_date, end_date in quarters:
+        if start_date <= input_date <= end_date:
+            label = f"{end_date.strftime('%B %Y')} Quarter"
+            return label, start_date, end_date
+

@@ -1,6 +1,23 @@
 from django.forms import *
 from .models import *
 
+general = General_2.objects.filter(name="Insignia").first()
+if not general:
+    General_2(name="Insignia").save()
+
+class DescriptionForm(ModelForm):
+    class Meta:
+        model = General_2
+        fields = ("company", "period", "person", "answer_type", "question", "answer", )
+        widgets = {
+            "company": TextInput(attrs={"class": "form-control", "placeholder": "Company description"}),
+            "period": TextInput(attrs={"class": "form-control", "placeholder": "Period description"}),
+            "person": TextInput(attrs={"class": "form-control", "placeholder": "Person description"}),
+            "answer_type": TextInput(attrs={"class": "form-control", "placeholder": "Answer type description"}),
+            "question": TextInput(attrs={"class": "form-control", "placeholder": "Question description"}),
+            "answer": TextInput(attrs={"class": "form-control", "placeholder": "Answer description"}),
+        }
+
 class CompanyForm(ModelForm):
     class Meta:
         model = Company
@@ -110,8 +127,16 @@ def get_form(model):
 
 def get_model(model_str):
     for model in all_models:
-        print(model.model_name, model_str, model.model_name == model_str)
+        # print(model.model_name, model_str, model.model_name == model_str)
         if model.model_name == model_str:
             # print("Get model", model, get_form(model))
             return model, get_form(model)
     return None, None
+
+def get_description(model_str):
+    if model_str == "company": return general.company
+    if model_str == "period": return general.period
+    if model_str == "person": return general.person
+    if model_str == "answer_type": return general.answer_type
+    if model_str == "question": return general.question
+    if model_str == "answer": return general.answer

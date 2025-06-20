@@ -34,6 +34,9 @@ urlpatterns = [
     path("make_data/<model_str>/", make_data, name="make_data"),
     path("development", development, name="development"),
 
+    # Descriptions
+    path("edit_descriptions", edit_descriptions, name="edit_descriptions"),
+
     # Periods
     path('add_previous/<id>', add_previous, name='add_previous'),
     path('add_next/<id>', add_next, name='add_next'),

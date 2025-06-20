@@ -1,7 +1,14 @@
 from django.db.models import *
 from django.contrib.auth.models import User
-from .utilities import *
+# from .utilities import *
 # import pandas as pd
+
+def create_choices(choices):
+    result = []
+    for choice in choices:
+        result.append((choice, choice))
+    return result
+
 
 user_type_choices = create_choices(['Admin', 'Respondent'])
 statuses = ['Answered', 'Unanswered']
@@ -11,19 +18,65 @@ question_choices = create_choices(['RAG', 'YN'])
 frequency_choices = create_choices(['Weekly', 'Monthly', 'Quarterly'])
 file_choices = create_choices(['Company' 'Person', "Question"])
 
-class General(Model):
+# class Description(Model):
+#     model_name = "descriptions"
+#     name = CharField(max_length=255, null=True, blank=True)
+#     company = TextField(null=True, blank=True)
+#     period = TextField(null=True, blank=True)
+#     person = TextField(null=True, blank=True)
+#     answer_type = TextField(null=True, blank=True)
+#     question = TextField(null=True, blank=True)
+#     answer = TextField(null=True, blank=True)
+
+class General_2(Model):
     model_name = "general"
     name = CharField(max_length=255, null=True, blank=True)
     colour = CharField(max_length=10, null=True, blank=True, default="#A6C9EC")
     colour_text = CharField(max_length=10, null=True, blank=True, default="#000000")
 
+    company = TextField(null=True, blank=True, default="Company description")
+    period = TextField(null=True, blank=True, default="Period description")
+    person = TextField(null=True, blank=True, default="Person description")
+    answer_type = TextField(null=True, blank=True, default="Answer type description")
+    question = TextField(null=True, blank=True, default="Question description")
+    answer = TextField(null=True, blank=True, default="Answer description")
+    # descriptions = ForeignKey(Descriptions, null=True, blank=True, on_delete=SET_NULL)
     def __str__(self): return self.name
+
+# class General(Model):
+#     model_name = "general"
+#     name = CharField(max_length=255, null=True, blank=True)
+#     colour = CharField(max_length=10, null=True, blank=True, default="#A6C9EC")
+#     colour_text = CharField(max_length=10, null=True, blank=True, default="#000000")
+#     # descriptions = ForeignKey(Descriptions, null=True, blank=True, on_delete=SET_NULL)
+#     def __str__(self): return self.name
 
 class Company(Model):
     model_name = "company"
     name = TextField(null=True, blank=True)
     def __str__(self):
         return self.name
+    def monthly_data(self):
+        data = []
+        months = Period.objects.filter(frequency="Monthly").order_by('end_date')
+        row = [""]
+        for month in months:
+            row.append(month.name)
+        data.append(row)
+        questions = Question.objects.filter(company=self, frequency="Monthly")
+        for question in questions:
+            row = [question.question]
+            answers = Answer.objects.filter(question=question, company=self).order_by('date')
+            for answer in answers:
+                result = answer.answer
+                if not result: result = "Not answered"
+                row.append(result)
+            data.append(row)
+        return data
+
+
+        return data
+
 
 class Period(Model):
     model_name = "period"
@@ -73,7 +126,7 @@ class Question(Model):
     company = ForeignKey(Company, null=True, on_delete=SET_NULL)
     person = ForeignKey(Person, null=True, on_delete=SET_NULL)
     def __str__(self): return self.question
-    def answers(self):
+    def answer_choices(self):
         return self.answer_type.answers()
 
 class Answer(Model):
@@ -92,6 +145,10 @@ class Answer(Model):
         if not self.answer: return False
         print("Needs notes:", self.answer[-1])
         return self.answer[-1] == "+"
+
+    def set_period_date(self):
+        self.date = self.period.end_date
+        self.save()
 
 class To_do(Model):
     model_name = "to_do"
@@ -138,4 +195,4 @@ class To_do(Model):
 
 
 # all_models = [General, Company, Person, Question, Answer]
-all_models = [General, Company, Period, Person, AnswerType, Question, Answer, To_do, ]
+all_models = [General_2, Company, Period, Person, AnswerType, Question, Answer, To_do, ]

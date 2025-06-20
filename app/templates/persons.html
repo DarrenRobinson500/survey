@@ -2,6 +2,7 @@
 {% block content %}
 
 <h1>People</h1>
+<h3>{{ description }}</h3>
 <table class='table table-hover table-bordered'>
     <tr style="color: {{general.colour_text}}; background-color: {{ general.colour }};"><th>First Name</th><th>Surname</th><th>Email</th><th>Credentials</th><th>User type</th><th>Unanswered</th><th>Action</th></tr>
     {% for item in items %}

@@ -1,0 +1,17 @@
+{% extends 'base.html'%}
+{% block content %}
+<h1>{{ item }}</h1>
+
+<table class='table table-hover table-bordered'>
+    {% for row in item.monthly_data %}
+        <tr>
+            {% for col in row %}
+                <td>{{ col }}</td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}
+
+
