@@ -1,9 +1,11 @@
 from django.forms import *
 from .models import *
 
-general = General_2.objects.filter(name="Insignia").first()
-if not general:
-    General_2(name="Insignia").save()
+# general = General_2.objects.filter(name="Insignia").first()
+# if not general:
+#     General_2(name="Insignia").save()
+
+general = None
 
 class DescriptionForm(ModelForm):
     class Meta:
